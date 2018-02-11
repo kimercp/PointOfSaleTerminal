@@ -43,9 +43,8 @@ public class SignInActivity extends AppCompatActivity {
         // full screen on device
         makeFullscreen();
         // make a nice animation effect from not visible to visible screen (splash screen)
-        new SplashScreen(this, 4000);
-
-
+        new SplashScreen(this, 1000);
+        
 
         //Initializing values
         lottieAnimations = new LottieAnimations();

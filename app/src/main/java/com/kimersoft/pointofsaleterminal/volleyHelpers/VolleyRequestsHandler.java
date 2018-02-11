@@ -7,8 +7,8 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.rep.dashboardrep.models.User;
-import com.rep.dashboardrep.utils.Urls;
+import com.kimersoft.pointofsaleterminal.models.User;
+import com.kimersoft.pointofsaleterminal.utils.Urls;
 
 import org.json.JSONException;
 import org.json.JSONObject;
