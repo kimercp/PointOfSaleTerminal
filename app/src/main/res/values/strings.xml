@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">PointOfSaleTerminal</string>
+
+    <!-- singInActivity -->
+    <string name="signInName">VENUE DASHBOARD</string>
+    <string name="signInBellowName">BETA</string>
+    <string name="signInUsername">USERNAME </string>
+    <string name="signInPassword">PASSWORD</string>
+    <string name="signInSignIn">LOGIN</string>
+
+    <!-- mainActivity -->
+</resources>
