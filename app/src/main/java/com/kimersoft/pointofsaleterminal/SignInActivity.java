@@ -13,12 +13,12 @@ import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.kimersoft.pointofsaleterminal.utils.LottieAnimations;
-import com.kimersoft.pointofsaleterminal.utils.SplashScreen;
 import com.kimersoft.pointofsaleterminal.volleyHelpers.VolleyRequestsHandler;
 import com.kimersoft.pointofsaleterminal.volleyHelpers.VolleyCallback;
 import com.kimersoft.pointofsaleterminal.models.User;
 import com.kimersoft.pointofsaleterminal.volleyHelpers.ObjectToJsonParser;
 import com.airbnb.lottie.LottieAnimationView;
+
 import org.json.JSONObject;
 
 public class SignInActivity extends AppCompatActivity {
@@ -38,13 +38,12 @@ public class SignInActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
-        findViewById(R.id.rl_sign_in).setBackground(ContextCompat.getDrawable(this,R.drawable.gradient_background_radial));
+        findViewById(R.id.rl_sign_in).setBackground(ContextCompat.getDrawable(this, R.drawable.gradient_background_radial));
 
         // full screen on device
         makeFullscreen();
-        // make a nice animation effect from not visible to visible screen (splash screen)
-        new SplashScreen(this, 1000);
-        
+        // splash screen
+        splashScreen(2000);
 
         //Initializing values
         lottieAnimations = new LottieAnimations();
@@ -73,15 +72,18 @@ public class SignInActivity extends AppCompatActivity {
                 usersDetails = new ObjectToJsonParser();
                 JSONObject userDetailsJSONObject = usersDetails.userSignInJson(email, password);
 
-                volleyRequestsHandler.userSignIn(userDetailsJSONObject,
+                // temporary only, to avoid login service
+                startActivity(new Intent(SignInActivity.this, MainActivity.class));
+
+                /*volleyRequestsHandler.userSignIn(userDetailsJSONObject,
                         new VolleyCallback() {
                             @Override
                             public void onSuccess(Object response) {
-                                /*
+                                *//*
                                 * the login end point return Token
                                 * we save the email, password and the returned token to shareprefs then we call
                                 * user_info endpoint to retrieve wallet,email,name,lastname and type parameters
-                                */
+                                *//*
                                 final String token = (String) response;
                                 User u = new User();
                                 u.setToken(token);
@@ -111,20 +113,20 @@ public class SignInActivity extends AppCompatActivity {
                                 Toast.makeText(SignInActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
                                 lottieAnimations.StoppingSignInLoading(loading, rlLoading);
                             }
-                        });
+                        });*/
 
             }
         });
 
     }
 
-    /* Hide UI action bar and make the app fullscreen */
-    public final void makeFullscreen() {
+    // hide UI action bar and make the app fullscreen
+    public void makeFullscreen() {
         getSupportActionBar().hide();
         // API 19 (Kit Kat)
         if (Build.VERSION.SDK_INT >= 19) {
             getWindow().getDecorView().setSystemUiVisibility(
-//                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    // View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
             );
@@ -134,5 +136,13 @@ public class SignInActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
             }
         }
+    }
+
+    // splashscreen
+    public void splashScreen(int splashScreenDurationInMiliSeconds) {
+        RelativeLayout secondLogo = (RelativeLayout) findViewById(R.id.rl_sign_in);
+        ObjectAnimator signInLayout = ObjectAnimator.ofFloat(secondLogo, "alpha", 0f, 1f);
+        signInLayout.setDuration(splashScreenDurationInMiliSeconds);
+        signInLayout.start();
     }
 }
