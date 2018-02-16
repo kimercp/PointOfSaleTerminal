@@ -73,17 +73,17 @@ public class SignInActivity extends AppCompatActivity {
                 JSONObject userDetailsJSONObject = usersDetails.userSignInJson(email, password);
 
                 // temporary only, to avoid login service
-                startActivity(new Intent(SignInActivity.this, MainActivity.class));
+//                startActivity(new Intent(SignInActivity.this, MainActivity.class));
 
-                /*volleyRequestsHandler.userSignIn(userDetailsJSONObject,
+                volleyRequestsHandler.userSignIn(userDetailsJSONObject,
                         new VolleyCallback() {
                             @Override
                             public void onSuccess(Object response) {
-                                *//*
+                                /*
                                 * the login end point return Token
                                 * we save the email, password and the returned token to shareprefs then we call
                                 * user_info endpoint to retrieve wallet,email,name,lastname and type parameters
-                                *//*
+                                */
                                 final String token = (String) response;
                                 User u = new User();
                                 u.setToken(token);
@@ -113,7 +113,7 @@ public class SignInActivity extends AppCompatActivity {
                                 Toast.makeText(SignInActivity.this, error.toString(), Toast.LENGTH_SHORT).show();
                                 lottieAnimations.StoppingSignInLoading(loading, rlLoading);
                             }
-                        });*/
+                        });
 
             }
         });

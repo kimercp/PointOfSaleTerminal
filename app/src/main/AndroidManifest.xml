@@ -21,7 +21,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity" />
-        <activity android:name=".zkcInterface"></activity>
+        <activity android:name=".zkcInterface" />
+        <activity android:name=".LynqMenu"></activity>
     </application>
 
 </manifest>

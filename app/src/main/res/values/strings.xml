@@ -13,6 +13,6 @@
     <!-- from zkc product -->
     <string name="service_bind_fail">AIDL service bind fail</string>
     <string name="service_bind_success">AIDL service bind success</string>
-
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
