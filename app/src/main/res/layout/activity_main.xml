@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_background_radial"
-    tools:context="com.kimersoft.pointofsaleterminal.MainActivity">
+    tools:context="com.kimersoft.pointofsaleterminal.MyMenuPOS">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -62,7 +62,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Menu"
+                    android:text="@string/mainActivityMenu"
                     android:textColor="@color/colorWhite" />
             </LinearLayout>
 
@@ -88,7 +88,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:text="Promotions"
+                    android:text="@string/mainActivityPromotions"
                     android:textColor="@color/colorWhite" />
             </LinearLayout>
 
@@ -113,7 +113,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Events"
+                    android:text="@string/mainActivityEvents"
                     android:textColor="@color/colorWhite" />
             </LinearLayout>
 
@@ -146,7 +146,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Marketing"
+                    android:text="@string/mainActivityMarkteting"
                     android:textColor="@color/colorWhite" />
             </LinearLayout>
 
@@ -171,7 +171,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Profile"
+                    android:text="@string/mainActivityProfile"
                     android:textColor="@color/colorWhite" />
             </LinearLayout>
 
@@ -196,7 +196,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Toggles"
+                    android:text="@string/mainActivityToggles"
                     android:textColor="@color/colorWhite" />
             </LinearLayout>
 
@@ -229,7 +229,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Discovery"
+                    android:text="@string/mainActivityDiscovery"
                     android:textColor="@color/colorWhite" />
             </LinearLayout>
 
@@ -254,7 +254,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Analytics"
+                    android:text="@string/mainActivityAnalytics"
                     android:textColor="@color/colorWhite" />
             </LinearLayout>
 
@@ -279,7 +279,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="Card Lynq"
+                    android:text="@string/mainActivityCardLynq"
                     android:textColor="@color/colorWhite" />
             </LinearLayout>
 
@@ -300,7 +300,7 @@
                 android:layout_marginTop="40dp"
                 android:layout_weight="1"
                 android:background="@drawable/btn_background_bottom"
-                android:text="Orders"
+                android:text="@string/mainActivityOrders"
                 android:textColor="@color/colorWhite"
                 android:textSize="20dp" />
         </LinearLayout>

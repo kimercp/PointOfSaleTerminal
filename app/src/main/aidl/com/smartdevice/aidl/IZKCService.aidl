@@ -446,6 +446,11 @@ interface IZKCService
 	*/
 	void scan();
 
+    /**
+	*扫描（3503/3504）
+	*/
+	void scanGT();
+
 	/**
 	* 数据末尾追加回车
 	* @param status: true:追加；false:不追加

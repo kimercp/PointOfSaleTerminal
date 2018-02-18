@@ -1,8 +1,10 @@
 package com.kimersoft.pointofsaleterminal;
 
 import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.support.multidex.MultiDex;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,6 +24,11 @@ import com.airbnb.lottie.LottieAnimationView;
 import org.json.JSONObject;
 
 public class SignInActivity extends AppCompatActivity {
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
+    }
 
     private EditText etSignInEmail, etSignInPwd;
     private Button btnSignIn;
@@ -39,6 +46,9 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
         findViewById(R.id.rl_sign_in).setBackground(ContextCompat.getDrawable(this, R.drawable.gradient_background_radial));
+
+// this is temporarty to avoid sing in
+        startActivity(new Intent(SignInActivity.this, MyMenuPOS.class));
 
         // full screen on device
         makeFullscreen();
@@ -73,7 +83,7 @@ public class SignInActivity extends AppCompatActivity {
                 JSONObject userDetailsJSONObject = usersDetails.userSignInJson(email, password);
 
                 // temporary only, to avoid login service
-//                startActivity(new Intent(SignInActivity.this, MainActivity.class));
+//                startActivity(new Intent(SignInActivity.this, MyMenuPOS.class));
 
                 volleyRequestsHandler.userSignIn(userDetailsJSONObject,
                         new VolleyCallback() {
@@ -96,7 +106,7 @@ public class SignInActivity extends AppCompatActivity {
                                     public void onSuccess(Object respons) {
 
                                         lottieAnimations.StoppingSignInLoading(loading, rlLoading);
-                                        startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                                        startActivity(new Intent(SignInActivity.this, MyMenuPOS.class));
                                     }
 
                                     @Override

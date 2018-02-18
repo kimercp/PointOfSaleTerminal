@@ -6,7 +6,7 @@ android:id="@+id/ll_main_content"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
 android:background="@color/colorWaitingBackground"
-android:orientation="horizontal"
+android:orientation="vertical"
 tools:context="com.kimersoft.pointofsaleterminal.LynqMenu">
 
 <LinearLayout
