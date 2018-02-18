@@ -24,11 +24,11 @@ import com.airbnb.lottie.LottieAnimationView;
 import org.json.JSONObject;
 
 public class SignInActivity extends AppCompatActivity {
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
-        MultiDex.install(this);
-    }
+//    @Override
+//    protected void attachBaseContext(Context base) {
+//        super.attachBaseContext(base);
+//        MultiDex.install(this);
+//    }
 
     private EditText etSignInEmail, etSignInPwd;
     private Button btnSignIn;

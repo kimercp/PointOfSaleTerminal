@@ -45,7 +45,6 @@ public class CaptureActivity extends Activity implements Callback {
 		setContentView(R.layout.activity_scan2);
 		
 		CameraManager.init(getApplication());
-
 		viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
 		txtResult = (TextView) findViewById(R.id.txtResult);
 		hasSurface = false;
@@ -107,7 +106,7 @@ public class CaptureActivity extends Activity implements Callback {
 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
-                               int height) {
+			int height) {
 
 	}
 
@@ -117,13 +116,11 @@ public class CaptureActivity extends Activity implements Callback {
 			hasSurface = true;
 			initCamera(holder);
 		}
-
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
 		hasSurface = false;
-
 	}
 
 	public ViewfinderView getViewfinderView() {

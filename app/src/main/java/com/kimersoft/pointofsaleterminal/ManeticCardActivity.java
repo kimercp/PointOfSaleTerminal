@@ -1,11 +1,12 @@
 package com.kimersoft.pointofsaleterminal;
 
 import android.os.Bundle;
+import android.os.Message;
 import android.os.RemoteException;
 import android.widget.EditText;
 
 import com.smartdevice.aidl.ICallBack;
-import com.kimersoft.pointofsaleterminal.util.ExecutorFactory;
+import com.kimersoft.pointofsaleterminal.common.MessageType;
 
 public class ManeticCardActivity extends BaseActivity {
 
@@ -20,22 +21,22 @@ public class ManeticCardActivity extends BaseActivity {
 		et_receiver.setCursorVisible(false);
 		et_receiver.setFocusable(false);
 		et_receiver.setFocusableInTouchMode(false);
-		ExecutorFactory.executeThread(new Runnable() {
-			@Override
-			public void run() {
-				while(runFlag){
-					if(bindSuccessFlag){
-						try {
-							mIzkcService.registerCallBack("IC", mCallBack);
-						} catch (RemoteException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						runFlag = false;
-					}
-				}							
-			}
-		});
+	}
+
+	@Override
+	protected void handleStateMessage(Message message) {
+		super.handleStateMessage(message);
+		switch (message.what){
+			case MessageType.BaiscMessage.SEVICE_BIND_SUCCESS:
+				try {
+					mIzkcService.registerCallBack("IC", mCallBack);
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+				break;
+			case MessageType.BaiscMessage.SEVICE_BIND_FAIL:
+				break;
+		}
 	}
 
 	private ICallBack mCallBack = new ICallBack.Stub() {
@@ -55,6 +56,6 @@ public class ManeticCardActivity extends BaseActivity {
 			e.printStackTrace();
 		}
 		super.onStop();
-	};
+	}
 
 }

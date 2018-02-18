@@ -12,7 +12,7 @@ public class MyMenuPOS extends AppCompatActivity implements View.OnClickListener
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_my_menu_pos);
         // full screen on device
         makeFullscreen();
 
@@ -32,7 +32,7 @@ public class MyMenuPOS extends AppCompatActivity implements View.OnClickListener
         Intent intent;
         switch (view.getId()) {
             case R.id.imgLogo:
-                intent = new Intent(this, ZkcInterface.class);
+                intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 break;
             case R.id.imgMenu:

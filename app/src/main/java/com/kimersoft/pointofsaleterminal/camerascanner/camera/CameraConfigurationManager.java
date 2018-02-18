@@ -64,21 +64,21 @@ final class CameraConfigurationManager {
     Log.d(TAG, "Camera resolution: " + screenResolution);
   }
   
-  void initFromCameraParametersV(Camera camera) {
-	    Camera.Parameters parameters = camera.getParameters();
+  void initFromCameraParametersV(Camera camera) {  
+	    Camera.Parameters parameters = camera.getParameters();  
 	    previewFormat = parameters.getPreviewFormat();  
 	    previewFormatString = parameters.get("preview-format");  
-	    Log.d(TAG, "Default preview format: " + previewFormat + '/'
+	    Log.d(TAG, "Default preview format: " + previewFormat + '/'  
 	            + previewFormatString);  
-	    WindowManager manager = (WindowManager) context
-	            .getSystemService(Context.WINDOW_SERVICE);
-	    Display display = manager.getDefaultDisplay();
-	    screenResolution = new Point(display.getWidth(), display.getHeight());
-	    Log.d(TAG, "Screen resolution: " + screenResolution);
+	    WindowManager manager = (WindowManager) context  
+	            .getSystemService(Context.WINDOW_SERVICE);  
+	    Display display = manager.getDefaultDisplay();  
+	    screenResolution = new Point(display.getWidth(), display.getHeight());  
+	    Log.d(TAG, "Screen resolution: " + screenResolution);  
 	      
-	    Point screenResolutionForCamera = new Point();
+	    Point screenResolutionForCamera = new Point();     
 	    screenResolutionForCamera.x = screenResolution.x;     
-	    screenResolutionForCamera.y = screenResolution.y;     
+	    screenResolutionForCamera.y = screenResolution.y;
 	      
 	    // preview size is always something like 480*320, other 320*480  
 	    if (screenResolution.x < screenResolution.y) {    
@@ -88,7 +88,7 @@ final class CameraConfigurationManager {
 	      
 	    cameraResolution = getCameraResolution(parameters, screenResolutionForCamera);  
 	       cameraResolution = getCameraResolution(parameters, screenResolution);  
-	    Log.d(TAG, "Camera resolution: " + screenResolution);
+	    Log.d(TAG, "Camera resolution: " + screenResolution);  
 	} 
 
   /**
@@ -101,8 +101,10 @@ final class CameraConfigurationManager {
     Camera.Parameters parameters = camera.getParameters();
     Log.d(TAG, "Setting preview size: " + cameraResolution);
     parameters.setPreviewSize(cameraResolution.x, cameraResolution.y);
+//    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+//    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);//1连续对焦
     setFlash(parameters);
-    setZoom(parameters);
+//    setZoom(parameters);
     //setSharpness(parameters);
     //竖屏
     int direct = SystemUtil.getScreenOrientent(context);

@@ -6,7 +6,7 @@ import android.webkit.WebView;
 
 import com.kimersoft.pointofsaleterminal.R;
 
-public class ScanInstructionActivity extends Activity {
+public class ScanInstructionActivity extends Activity{
 	
 	// 初始化控件
 	private WebView webview_readme;

@@ -37,14 +37,43 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".MyMenuPOS"
-            android:screenOrientation="portrait" />
-        <activity android:name=".ZkcInterface"
-            android:screenOrientation="portrait" />
-        <activity android:name=".LynqMenu"
-            />
+        android:screenOrientation="portrait" />
+
+        <activity android:name=".LynqMenu" />
+
         <activity android:name=".CardLynq"
+        android:screenOrientation="portrait" />
+
+        <activity android:name=".MainActivity"
             android:screenOrientation="portrait" />
+
+        <activity android:name=".PSAMActivity" />
+        <activity android:name=".PSAMActivity2" />
+        <activity android:name="com.kimersoft.pointofsaleterminal.PSAMActivityV2"/>
+        <activity android:name="com.kimersoft.pointofsaleterminal.PrinterActivity" />
+        <activity android:name="com.kimersoft.pointofsaleterminal.ScannerActivity" />
+        <activity android:name="com.kimersoft.pointofsaleterminal.CustomerScreenActivity" />
+        <activity android:name="com.kimersoft.pointofsaleterminal.ManeticCardActivity" />
+        <activity android:name="com.kimersoft.pointofsaleterminal.CaptureActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+            android:windowSoftInputMode="stateAlwaysHidden"/>
+
+        <activity android:name="com.kimersoft.pointofsaleterminal.NfcActivity" >
+            <!-- TECH_DISCOVERED类型的nfc -->
+            <intent-filter>
+                <action android:name="android.nfc.action.TECH_DISCOVERED" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="com.kimersoft.pointofsaleterminal.nfc.NFCActivity"/>
+        <activity android:name="com.kimersoft.pointofsaleterminal.nfc.NFCAcmdActivity"/>
+        <activity android:name="com.kimersoft.pointofsaleterminal.scan.ScanInstructionActivity"/>
+        <activity android:name="com.kimersoft.pointofsaleterminal.scan.ScanSetActivity"/>
+        <activity android:name=".IDCardActivity"/>
+
     </application>
 
 </manifest>

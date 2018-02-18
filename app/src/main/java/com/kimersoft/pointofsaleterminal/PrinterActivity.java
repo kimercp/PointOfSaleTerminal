@@ -13,17 +13,20 @@ import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.text.Layout.Alignment;
 import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewConfiguration;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -37,15 +40,17 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.kimersoft.pointofsaleterminal.common.CmdDialog;
+import com.kimersoft.pointofsaleterminal.common.MessageType;
 import com.kimersoft.pointofsaleterminal.language.LanguageModel;
 import com.kimersoft.pointofsaleterminal.language.SpinnerAdapterLanguage;
 import com.kimersoft.pointofsaleterminal.printer.PrinterHelper;
 import com.kimersoft.pointofsaleterminal.printer.entity.SupermakerBill;
-import com.kimersoft.pointofsaleterminal.util.ExecutorFactory;
 import com.kimersoft.pointofsaleterminal.util.FileUtil;
 import com.kimersoft.pointofsaleterminal.util.PatternMatcher;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,36 +61,48 @@ public class PrinterActivity extends BaseActivity implements OnClickListener, On
 			btn_wordAlginLeft, btn_wordAlginMiddle, btn_wordAlginRight,
 			btn_picAlginLeft, btn_picAlginMiddle, btn_picAlginRight,
 			btnPrintModelOne, btnPrintModelTwo, btnPrintModelThree, btnSuperPrinter,
-	        btnPrintPicGray, btnPrintPicRaster, btnPrintUnicode1F30;
+	        btnPrintPicGray, btnPrintPicRaster, btnPrintUnicode1F30,btnOpenPower,btnClosePower;
 	private TextView tv_printStatus, tv_printer_soft_version;
 	private EditText et_printText;
 	private ImageView iv_printPic;
 	private Bitmap mBitmap = null;
-	private CheckBox mAutoOutputPaper;
+	private CheckBox mAutoOutputPaper, cbAutoPrint;
 	RadioGroup rg_fontGroup;
 	private static final int REQUEST_EX = 1;
 	private int fontType = 0;
 
 	private String printTextString = "";
+	private boolean checkedPicFlag = false;
+	boolean isPrint = true;
+	long startTimes = 0;
+	long endTimes = 0;
+	long timeSpace = 0;
 
 	@Override
 	protected void onStop() {
 		super.onStop();
 	}
 
+	//线程运行标志 the running flag of thread
 	private boolean runFlag = true;
-	//标签打印标记
+	//打印机检测标志 the detect flag of printer
+	private boolean detectFlag = false;
+	//打印机连接超时时间 link timeout of printer
+	private float PINTER_LINK_TIMEOUT_MAX = 30*1000L;
+	//标签打印标记 the flag of tag print
 	private boolean autoOutputPaper = false;
 	String text;
-
 	private Spinner spinnerLanguage, spinner_pic_style;
-	private boolean SCREEN_ON = false;
+	//自动打印线程 thread of auto printer
+	private AutoPrintThread mAutoPrintThread = null;
     /**
      * 图片打印类型
+	 * image type of print
      */
     int imageType=0;
     final String[] imageTypeArray=new String[]{"POINT","GRAY","RASTER"};
-	ScreenOnOffReceiver mReceiver = null;
+	private RadioGroup radio_cut;
+	DetectPrinterThread mDetectPrinterThread;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -94,90 +111,101 @@ public class PrinterActivity extends BaseActivity implements OnClickListener, On
 		setContentView(R.layout.activity_printer);
 		initView();
 		initEvent();
+		mDetectPrinterThread = new DetectPrinterThread();
+		mDetectPrinterThread.start();
 //		mReceiver = new ScreenOnOffReceiver();
 //		IntentFilter screenStatusIF = new IntentFilter();
 //		screenStatusIF.addAction(Intent.ACTION_SCREEN_ON);
 //		screenStatusIF.addAction(Intent.ACTION_SCREEN_OFF);
 //		registerReceiver(mReceiver, screenStatusIF);
 		enableOrDisEnableKey(false);
-		ExecutorFactory.executeThread(new Runnable() {
-			@Override
-			public void run() {
-				while(runFlag){
-					if(bindSuccessFlag){
-						//检测打印是否正常
-						try {
+	}
+
+	class DetectPrinterThread extends Thread{
+		@Override
+		public void run() {
+			super.run();
+			while(runFlag){
+				float start_time = SystemClock.currentThreadTimeMillis();
+				float end_time = 0;
+				float time_lapse = 0;
+				if(detectFlag){
+					//检测打印是否正常 detect if printer is normal
+					try {
+						if(mIzkcService!=null){
 							String printerSoftVersion = mIzkcService.getFirmwareVersion1();
 							if(TextUtils.isEmpty(printerSoftVersion)){
-								printerSoftVersion = mIzkcService.getFirmwareVersion2();
-							}
-							if(TextUtils.isEmpty(printerSoftVersion)){
 								mIzkcService.setModuleFlag(module_flag);
-								mHandler.obtainMessage(1).sendToTarget();
+								end_time = SystemClock.currentThreadTimeMillis();
+								time_lapse = end_time - start_time;
+								if(time_lapse>PINTER_LINK_TIMEOUT_MAX){
+									detectFlag = false;
+									//打印机连接超时 printer link timeout
+									sendEmptyMessage(MessageType.BaiscMessage.PRINTER_LINK_TIMEOUT);
+								}
 							}else{
-								mHandler.obtainMessage(0, printerSoftVersion).sendToTarget();
-								runFlag = false;
+								//打印机连接成功 printer link success
+								sendMessage(MessageType.BaiscMessage.DETECT_PRINTER_SUCCESS, printerSoftVersion);
+								detectFlag = false;
 							}
-						} catch (RemoteException e) {
-							e.printStackTrace();
 						}
-
+					} catch (RemoteException e) {
+						e.printStackTrace();
 					}
+
 				}
+				SystemClock.sleep(1);
 			}
-		});
+		}
 	}
 
 	@Override
 	protected void onResume() {
+		//开始检测打印机 begin to detect printer
+		detectFlag = true;
 		super.onResume();
-		//查询服务是否绑定成功，bindSuccessFlag为服务是否绑定成功的标记，在BaseActivity声
-//		runFlag = true;
-//		enableOrDisEnableKey(false);
-
 	}
 
-	Handler mHandler = new Handler(new Handler.Callback() {
-		
-		@Override
-		public boolean handleMessage(Message msg) {
-			switch (msg.what) {
-			case 0:
-				enableOrDisEnableKey(true);
-				generateBarCode();
-				String status;
-
-				String aidlServiceVersion;
-				try {
-//					mIzkcService.sendRAWData("printer", new byte[] {0x1b, 0x40});
-					status = mIzkcService.getPrinterStatus();
-					tv_printStatus.setText(status);
-
-					aidlServiceVersion = mIzkcService.getServiceVersion();
-					tv_printer_soft_version.setText(msg.obj + "AIDL Service Version:" + aidlServiceVersion);
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+	@Override
+	protected void handleStateMessage(Message message) {
+		super.handleStateMessage(message);
+		switch (message.what){
+			//服务绑定成功 service bind success
+			case MessageType.BaiscMessage.SEVICE_BIND_SUCCESS:
+//				Toast.makeText(this, getString(R.string.service_bind_success), Toast.LENGTH_SHORT).show();
 				break;
-			case 1:
-				Toast.makeText(PrinterActivity.this, R.string.waiting, Toast.LENGTH_SHORT).show();
+			//服务绑定失败 service bind fail
+			case MessageType.BaiscMessage.SEVICE_BIND_FAIL:
+//				Toast.makeText(this, getString(R.string.service_bind_fail), Toast.LENGTH_SHORT).show();
 				break;
-			case 8:
-//				showProgressDialog("waiting...");
-//				new Timer().schedule(new TimerTask() {
-//					@Override
-//					public void run() {
-//						dismissLoadDialog();
-//					}
-//				}, 8000);
+			//打印机连接成功 printer link success
+			case MessageType.BaiscMessage.DETECT_PRINTER_SUCCESS:
+				String msg = (String) message.obj;
+				checkPrintStateAndDisplayPrinterInfo(msg);
 				break;
-			default:
+			//打印机连接超时 printer link timeout
+			case MessageType.BaiscMessage.PRINTER_LINK_TIMEOUT:
+				Toast.makeText(this, getString(R.string.printer_link_timeout), Toast.LENGTH_SHORT).show();
 				break;
-			}
-			return false;
 		}
-	});
+	}
+
+	private void checkPrintStateAndDisplayPrinterInfo(String msg) {
+		enableOrDisEnableKey(true);
+		if(DEVICE_MODEL==800)radio_cut.setVisibility(View.VISIBLE);
+		if(!checkedPicFlag)generateBarCode();
+		String status;
+		String aidlServiceVersion;
+		try {
+            status = mIzkcService.getPrinterStatus();
+            tv_printStatus.setText(status);
+            aidlServiceVersion = mIzkcService.getServiceVersion();
+            tv_printer_soft_version.setText(msg + "\nAIDL Service Version:" + aidlServiceVersion);
+        } catch (RemoteException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+	}
 
 	private void initView() {
 		btnBarCode = (Button) findViewById(R.id.btnBarCode);
@@ -207,6 +235,8 @@ public class PrinterActivity extends BaseActivity implements OnClickListener, On
 		btnPrintPicGray = (Button) findViewById(R.id.btnPrintPicGray);
 		btnPrintPicRaster = (Button) findViewById(R.id.btnPrintPicRaster);
 		btnPrintUnicode1F30 = (Button) findViewById(R.id.btnPrintUnicode1F30);
+		btnOpenPower = (Button) findViewById(R.id.btnOpenPower);
+		btnClosePower = (Button) findViewById(R.id.btnClosePower);
 		tv_printer_soft_version = (TextView) findViewById(R.id.tv_printer_soft_version);
 		spinnerLanguage = (Spinner) findViewById(R.id.spinner_language);
 		spinner_pic_style = (Spinner) findViewById(R.id.spinner_pic_style);
@@ -219,6 +249,25 @@ public class PrinterActivity extends BaseActivity implements OnClickListener, On
 		text= et_printText.getText().toString()+"\n";
 		et_printText.setSelection(et_printText.getText().toString().length());
 		mAutoOutputPaper = (CheckBox) findViewById(R.id.cb_auto_out_paper);
+		radio_cut = (RadioGroup) findViewById(R.id.radio_cut);
+		radio_cut.setVisibility(View.GONE);
+		cbAutoPrint = (CheckBox) findViewById(R.id.cb_auto_print);
+		cbAutoPrint.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				if(isChecked){
+					isPrint = true;
+					if(mAutoPrintThread!=null){
+						mAutoPrintThread.interrupt();
+						mAutoPrintThread = null;
+					}
+					mAutoPrintThread = new AutoPrintThread();
+					mAutoPrintThread.start();
+				}else{
+					isPrint = false;
+				}
+			}
+		});
 		mAutoOutputPaper.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -229,11 +278,35 @@ public class PrinterActivity extends BaseActivity implements OnClickListener, On
 				}
 			}
 		});
+		radio_cut.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				try {
+					if(mIzkcService!=null){
+						switch (checkedId) {
+							case R.id.radioButton_cut:
+								mIzkcService.sendRAWData("printer",new byte[] { 0x1E, 0x08, 0x08 });
+								mIzkcService.sendRAWData("printer",new byte[] { 0x1E, 0x07, 0x07 });
+								break;
+							case R.id.radioButton_cutall:
+								mIzkcService.sendRAWData("printer",new byte[] { 0x1E, 0x08, 0x15 });
+								mIzkcService.sendRAWData("printer",new byte[] { 0x1E, 0x07, 0x08 });
+								break;
 
-		SpinnerAdapterLanguage adapter = new SpinnerAdapterLanguage(this, android.R.layout.simple_spinner_item, getData());
+							default:
+								break;
+						}
+					}
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+
+		SpinnerAdapterLanguage adapter = new SpinnerAdapterLanguage(this, R.layout.adapter_listview, getData());
 		spinnerLanguage.setAdapter(adapter);
 		spinnerLanguage.setOnItemSelectedListener(this);
-        spinner_pic_style.setAdapter(new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,imageTypeArray));
+        spinner_pic_style.setAdapter(new ArrayAdapter<String>(this,R.layout.adapter_listview, R.id.textview_itemname,imageTypeArray));
         spinner_pic_style.setOnItemSelectedListener(this);
 		spinner_pic_style.setSelection(0);
 	}
@@ -249,11 +322,11 @@ public class PrinterActivity extends BaseActivity implements OnClickListener, On
 		List<LanguageModel> languageModelList=new ArrayList<>();
 		for(int i=0;i<cmdStr.length;i++)
 		{
-			String[] cmdArray=cmdStr[i].split(",");
+			String [] cmdArray=cmdStr[i].split(",");
 			if(cmdArray.length==3)
 			{
 				LanguageModel languageModel=new LanguageModel();
-				languageModel.code= Integer.parseInt(cmdArray[0]);
+				languageModel.code=Integer.parseInt(cmdArray[0]);
 				languageModel.language=cmdArray[1];
 				languageModel.description=cmdArray[1]+" "+cmdArray[2];
 				languageModelList.add(languageModel);
@@ -288,6 +361,8 @@ public class PrinterActivity extends BaseActivity implements OnClickListener, On
 		btnPrintUnicode1F30.setOnClickListener(this);
 		btnPrintPicRaster.setOnClickListener(this);
 		btnPrintPicGray.setOnClickListener(this);
+		btnClosePower.setOnClickListener(this);
+		btnOpenPower.setOnClickListener(this);
 	}
 
 	@Override
@@ -364,6 +439,22 @@ public class PrinterActivity extends BaseActivity implements OnClickListener, On
 			 break;
 		case R.id.btnPrintUnicode1F30:
 			printBitmapUnicode1F30();
+			break;
+		case R.id.btnOpenPower:
+			if(mIzkcService!=null) try {
+				mIzkcService.setModuleFlag(8);
+				SystemClock.sleep(1000);
+				mIzkcService.setModuleFlag(module_flag);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
+			break;
+		case R.id.btnClosePower:
+			if(mIzkcService!=null) try {
+				mIzkcService.setModuleFlag(9);
+			} catch (RemoteException e) {
+				e.printStackTrace();
+			}
 			break;
 		default:
 			break;
@@ -526,7 +617,6 @@ public class PrinterActivity extends BaseActivity implements OnClickListener, On
 			Log.e("", "远程服务未连接...");
 			e.printStackTrace();
 		}
-		
 	}
 
 
@@ -544,6 +634,7 @@ public class PrinterActivity extends BaseActivity implements OnClickListener, On
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		checkedPicFlag = true;
 		if (requestCode == REQUEST_EX && resultCode == RESULT_OK
 				&& null != data) {
 			Uri selectedImage = data.getData();
@@ -558,7 +649,6 @@ public class PrinterActivity extends BaseActivity implements OnClickListener, On
 			iv_printPic.setImageBitmap(mBitmap);
 			if (mBitmap.getHeight() > 384) {
 				iv_printPic.setImageBitmap(resizeImage(mBitmap, 384, 384));
-
 			}
 			cursor.close();
 		}
@@ -631,8 +721,10 @@ public class PrinterActivity extends BaseActivity implements OnClickListener, On
 	}
 
 	private void printGBKText() {
-		text= et_printText.getText().toString()+"\n";
+		text= et_printText.getText().toString()+"\r\n";
 		try {
+			mIzkcService.printerInit();
+//			mIzkcService.sendRAWData("printer", new byte[] { 0x1E, 0x04, 0x00, (byte) 0xBF, (byte) 0xD8, (byte) 0xD6, (byte) 0xC6});
 			mIzkcService.printGBKText(text);
 			if(autoOutputPaper){
 				mIzkcService.generateSpace();
@@ -704,6 +796,77 @@ public class PrinterActivity extends BaseActivity implements OnClickListener, On
 		}
 	}
 
+	private void getOverflowMenu() {
+		try {
+			ViewConfiguration config = ViewConfiguration.get(this);
+			Field menuKeyField = ViewConfiguration.class
+					.getDeclaredField("sHasPermanentMenuKey");
+			if (menuKeyField != null) {
+				menuKeyField.setAccessible(true);
+				menuKeyField.setBoolean(config, false);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, 1, 1, "发送指令");
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	private void showCmd() {
+		String path = Environment.getExternalStorageDirectory()
+				.getAbsolutePath() + File.separator + "cmd.txt";
+		//读取模板数据，按行保存
+		File file = new File(path);
+		if(!file.exists()){
+			Toast.makeText(PrinterActivity.this,
+					"请按规定格式将指令保存在名为cmd.txt文件中，并复制在终端根目录下",
+					Toast.LENGTH_SHORT).show();
+			return;
+		}
+		CmdDialog cmdDialog = new CmdDialog(this , new CmdDialog.DialogCallBack() {
+			@Override
+			public void submit(String cmd) {
+				String cmds = cmd;
+				if(mIzkcService!=null){
+					byte[] buffer = hexStringToBytes(cmds);
+					try {
+						mIzkcService.sendRAWData("printer", buffer);
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		cmdDialog.show();
+	}
+
+	public static byte[] hexStringToBytes(String hexString) {
+		hexString = hexString.toLowerCase();
+		String[] hexStrings = hexString.split(" ");
+		byte[] bytes = new byte[hexStrings.length];
+		for (int i = 0; i < hexStrings.length; i++) {
+			char[] hexChars = hexStrings[i].toCharArray();
+			bytes[i] = (byte) (charToByte(hexChars[0]) << 4 | charToByte(hexChars[1]));
+		}
+		return bytes;
+	}
+
+	private static byte charToByte(char c) {
+		return (byte) "0123456789abcdef".indexOf(c);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if(item.getItemId()==1){
+			showCmd();
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
 	private void setPrinterLanguage(int position) {
 		LanguageModel map = (LanguageModel)spinnerLanguage.getItemAtPosition(position);
 		String languageStr=map.language;
@@ -731,9 +894,45 @@ public class PrinterActivity extends BaseActivity implements OnClickListener, On
 
 	@Override
 	protected void onDestroy() {
-		unbindService();
+		if(mAutoPrintThread!=null){
+			mAutoPrintThread.interrupt();
+			mAutoPrintThread = null;
+		}
+		if(mDetectPrinterThread!=null){
+			runFlag = false;
+			mDetectPrinterThread.interrupt();
+			mDetectPrinterThread = null;
+		}
 		super.onDestroy();
 	}
 
-
+	private class AutoPrintThread extends Thread {
+		public void run() {
+			// Bitmap mBitmap = BitmapFactory.decodeResource(getResources(),
+			// R.drawable.order1);
+			// Bitmap myBitmap = resizeImage(mBitmap, 384, 748);
+			// Bitmap printBitmap = getBitmapPrint(myBitmap);
+			while (isPrint) {
+				startTimes = 0;
+				endTimes = 0;
+				timeSpace = 0;
+				startTimes = System.currentTimeMillis();
+				try {
+					if (cbAutoPrint.isChecked()&&mIzkcService!=null) {
+						printPurcase(false, true);
+						if (radio_cut.getCheckedRadioButtonId() == R.id.radioButton_cut) {
+							mIzkcService.sendRAWData("printer",new byte[] { 0x1b, 0x6d });
+						} else if (radio_cut.getCheckedRadioButtonId() == R.id.radioButton_cutall) {
+							mIzkcService.sendRAWData("printer",new byte[] { 0x1b, 0x69 });
+						}
+						endTimes = System.currentTimeMillis();
+						timeSpace = Math.abs(endTimes - startTimes - 4000);
+						SystemClock.sleep(timeSpace);
+					}
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
 }

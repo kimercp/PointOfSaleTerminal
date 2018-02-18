@@ -74,6 +74,7 @@
     <string name="test_print_text">This my print text \r\nabcdefghijklmnopkrstuvwxyz1234567890</string>
     <string name="product_check">Please check the right product</string>
     <string name="user_begin">user begin</string>
+    <string name="auto_printer">auto print</string>
     <string name="auto_paper">label print</string>
     <string name="without_get_device_model">Did not get device model</string>
     <string name="device_model">device model：</string>
@@ -81,5 +82,8 @@
     <string name="service_bind_fail">AIDL service bind fail</string>
     <string name="print_mode_not_exist">print templet not exist</string>
     <string name="waiting">initialization...</string>
+    <string name="notLinkToCamera">can not link to camera</string>
+    <string name="printer_link_timeout">the printer link timeout, you can try it confirm whether install the right service apk or turn off the device and turn on again</string>
+
 
 </resources>

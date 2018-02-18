@@ -24,7 +24,7 @@
                android:layout_height="fill_parent"
                android:layout_centerInParent="true"/>
 
-  <com.smartdevice.aidltestdemo.camerascanner.view.ViewfinderView
+  <com.kimersoft.pointofsaleterminal.camerascanner.view.ViewfinderView
       android:id="@+id/viewfinder_view"
       android:layout_width="fill_parent"
       android:layout_height="fill_parent"

@@ -11,9 +11,9 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
-public class PSAMActivity2 extends BaseActivity implements OnClickListener {
+public class PSAMActivity2 extends BaseActivity implements OnClickListener{
 
-	protected static final String TAG = "MyMenuPOS";
+	protected static final String TAG = "MainActivity";
 	Button btn_init, btn_random, button_send, button_power_on,
 			button_power_off;
 	EditText editText1, editText_cmd;
@@ -199,6 +199,7 @@ public class PSAMActivity2 extends BaseActivity implements OnClickListener {
 			s = mIzkcService.CloseCard2(fd[0],false);
 			fd[0] = 0;
 			if (s != -1) {
+				editText1.setText(s+"");
 				Log.i(TAG, "close success!");
 			}
 		} catch (RemoteException e) {
@@ -233,6 +234,7 @@ public class PSAMActivity2 extends BaseActivity implements OnClickListener {
 		int s;
 		try {
 			s = mIzkcService.openCard2(fd, cardLocation);
+			editText1.setText(s+"");
 			Log.i(TAG, "psam fd=" + fd[0]);
 			if (s != -1) {
 				Log.i(TAG, "open success!");

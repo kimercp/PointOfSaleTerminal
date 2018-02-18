@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.kimersoft.pointofsaleterminal.R;
+
 import java.util.List;
 
 /**
@@ -44,7 +46,7 @@ public class SpinnerAdapterLanguage extends BaseAdapter {
         LayoutInflater _LayoutInflater = LayoutInflater.from(mContext);
         convertView = _LayoutInflater.inflate(view, null);
         if (convertView != null) {
-            TextView _TextView1 = (TextView) convertView.findViewById(android.R.id.text1);
+            TextView _TextView1 = (TextView) convertView.findViewById(R.id.textview_itemname);
             _TextView1.setText(languageModelList.get(position).description + "(" + languageModelList.get(position).language + ")");
         }
         return convertView;

@@ -13,7 +13,7 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 
 import com.kimersoft.pointofsaleterminal.util.StringUtility;
 
-public class PSAMActivity extends BaseActivity implements OnClickListener, OnCheckedChangeListener {
+public class PSAMActivity extends BaseActivity implements OnClickListener, OnCheckedChangeListener{
 	
 	public static final String TAG = PSAMActivity.class.getSimpleName();
 	Button btn_init, btn_random, btn_send,btn_power_on,btn_power_off;
@@ -118,8 +118,6 @@ public class PSAMActivity extends BaseActivity implements OnClickListener, OnChe
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
 	}
 	
 	private void closePower(){

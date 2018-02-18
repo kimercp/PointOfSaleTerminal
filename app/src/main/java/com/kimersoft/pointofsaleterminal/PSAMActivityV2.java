@@ -1,7 +1,6 @@
 package com.kimersoft.pointofsaleterminal;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
@@ -13,12 +12,12 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
-import com.kimersoft.pointofsaleterminal.util.ExecutorFactory;
+import com.kimersoft.pointofsaleterminal.common.MessageType;
 import com.kimersoft.pointofsaleterminal.util.StringUtility;
 
-public class PSAMActivityV2 extends BaseActivity implements OnClickListener {
+public class PSAMActivityV2 extends BaseActivity implements OnClickListener{
 
-	protected static final String TAG = "MyMenuPOS";
+	protected static final String TAG = "MainActivity";
 	Button btn_init, btn_random, button_send, button_power_on,
 			button_power_off;
 	EditText editText1, editText_cmd;
@@ -35,25 +34,13 @@ public class PSAMActivityV2 extends BaseActivity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_psamv2);
 		initView();
-		ExecutorFactory.executeThread(new Runnable() {
-			@Override
-			public void run() {
-				while(runFlag){
-					if(bindSuccessFlag){
-						mHandler.obtainMessage(0).sendToTarget();
-						runFlag = false;
-					}
-				}							
-			}
-		});
 	}
-	
-	Handler mHandler = new Handler(new Handler.Callback() {
-		
-		@Override
-		public boolean handleMessage(Message msg) {
-			switch (msg.what) {
-			case 0:
+
+	@Override
+	protected void handleStateMessage(Message message) {
+		super.handleStateMessage(message);
+		switch (message.what){
+			case MessageType.BaiscMessage.SEVICE_BIND_SUCCESS:
 				try {
 					mIzkcService.setGPIO(24, 1);
 					//打开PSAM电源
@@ -61,15 +48,13 @@ public class PSAMActivityV2 extends BaseActivity implements OnClickListener {
 				} catch (RemoteException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
-				}				
+				}
 				break;
-
-			default:
+			case MessageType.BaiscMessage.SEVICE_BIND_FAIL:
 				break;
-			}
-			return false;
 		}
-	});
+	}
+
 
 	private void initView() {
 		editText1 = (EditText) findViewById(R.id.editText1);

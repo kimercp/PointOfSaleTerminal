@@ -1,41 +1,33 @@
 package com.kimersoft.pointofsaleterminal;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.os.Vibrator;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.smartdevice.aidl.ICallBack;
+import com.kimersoft.pointofsaleterminal.common.MessageType;
 import com.kimersoft.pointofsaleterminal.scan.ClientConfig;
 import com.kimersoft.pointofsaleterminal.scan.ScanInstructionActivity;
 import com.kimersoft.pointofsaleterminal.scan.ScanSetActivity;
-import com.kimersoft.pointofsaleterminal.util.ExecutorFactory;
 
 public class ScannerActivity extends BaseActivity implements OnClickListener {
 
 	private EditText et_code;
 	private Button btn_scan, btn_clear, btn_instruction, btn_set;
-	private boolean runFlag = true;
 	public String text = "";
-	RemoteControlReceiver screenStatusReceiver = null;
 	MediaPlayer player;
 	Vibrator vibrator;
 	private String firstCodeStr = "";
-	private boolean beginToReceiverData = true;
 	TextView tv_send,tv_receiver;
 	int send = 0,receiver=0;
 
@@ -44,10 +36,6 @@ public class ScannerActivity extends BaseActivity implements OnClickListener {
 		@Override
 		public void onReturnValue(byte[] buffer, int size)
 				throws RemoteException {
-			if(beginToReceiverData){
-				beginToReceiverData = false;
-				return;
-			}
 			String codeStr = new String(buffer, 0, size);
 			if(ClientConfig.getBoolean(ClientConfig.SCAN_REPEAT)){
 				if(firstCodeStr.equals(codeStr)){
@@ -61,31 +49,8 @@ public class ScannerActivity extends BaseActivity implements OnClickListener {
 				vibrator.vibrate(100);
 			}
 			firstCodeStr = codeStr;
-			//发送到外部接收
-			Intent intentBroadcast = new Intent();
-			intentBroadcast.setAction("com.zkc.scancode");
-			intentBroadcast.putExtra("code", codeStr);
-			sendBroadcast(intentBroadcast);
-			text += codeStr;			
-			int startIndex = text.indexOf("{");
-			int endIndex = text.indexOf("}");
-			String keyStr = "";
-			if (startIndex > -1 && endIndex > -1 && endIndex - startIndex < 5) {
-				keyStr = text.substring(startIndex + 1, endIndex);
-				text = text.substring(0, text.indexOf("{"));
-			}
-
-//			if (!keyStr.equals("")) {
-//				text += "\r\n";
-//			}
-
-			if(DEVICE_MODEL!=3504||DEVICE_MODEL!=3503){
-				text += "\r\n";
-			}
-			if(!TextUtils.isEmpty(text)){
-				mHandler.sendEmptyMessage(1);
-			}
-
+			text += codeStr+"\n";
+			sendMessage(MessageType.BaiscMessage.SCAN_RESULT_GET_SUCCESS, text);
 		}
 	};
 
@@ -95,67 +60,42 @@ public class ScannerActivity extends BaseActivity implements OnClickListener {
 		setContentView(R.layout.activity_scanner_two);
 		initView();
 		initEvent();
-		beginToReceiverData = true;
 		btn_scan.setEnabled(false);
 		player = MediaPlayer.create(getApplicationContext(), R.raw.scan);
 		vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
-		screenStatusReceiver = new RemoteControlReceiver();
-		IntentFilter screenStatusIF = new IntentFilter();
-		screenStatusIF.addAction(Intent.ACTION_SCREEN_ON);
-		screenStatusIF.addAction(Intent.ACTION_SCREEN_OFF);
-		screenStatusIF.addAction(Intent.ACTION_SHUTDOWN);
-		screenStatusIF.addAction("com.zkc.keycode");
-		registerReceiver(screenStatusReceiver, screenStatusIF);
-        //查询服务是否绑定成功，bindSuccessFlag为服务是否绑定成功的标记，在BaseActivity声明
-		ExecutorFactory.executeThread(new Runnable() {
-
-			@Override
-			public void run() {
-				while (runFlag) {
-					if (bindSuccessFlag) {
-						// 注册回调接口
-						try {
-//							if(DEVICE_MODEL==3505){
-//								mIzkcService.setModuleFlag(8);
-//							}
-							mIzkcService.registerCallBack("Scanner", mCallback);
-							// 关闭线程
-							runFlag = false;
-							mHandler.sendEmptyMessage(0);
-						} catch (RemoteException e) {
-							// TODO Auto-generated catch block
-							runFlag = false;
-							e.printStackTrace();
-						}
-					}
-				}
-
-			}
-		});
 	}
 
-	Handler mHandler = new Handler(new Handler.Callback() {
+	private void registerCallbackAndInitScan() {
+		// 注册回调接口
+		try {
+            mIzkcService.registerCallBack("Scanner", mCallback);
+			mIzkcService.openScan(ClientConfig.getBoolean(ClientConfig.OPEN_SCAN));
+			mIzkcService.dataAppendEnter(ClientConfig.getBoolean(ClientConfig.DATA_APPEND_ENTER));
+			btn_scan.setEnabled(true);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+	}
 
-		@Override
-		public boolean handleMessage(Message msg) {
-			switch (msg.what) {
-			case 0:
-				initScanSet();
-				btn_scan.setEnabled(true);
+	@Override
+	protected void handleStateMessage(Message message) {
+		super.handleStateMessage(message);
+		switch (message.what){
+			//服务绑定成功 service bind success
+			case MessageType.BaiscMessage.SEVICE_BIND_SUCCESS:
+				Toast.makeText(this, getString(R.string.service_bind_success), Toast.LENGTH_SHORT).show();
+				registerCallbackAndInitScan();
 				break;
-			case 1:
-				et_code.setText(text);
-				tv_receiver.setText("R:"+ ++receiver);
+			//服务绑定失败 service bind fail
+			case MessageType.BaiscMessage.SEVICE_BIND_FAIL:
+				Toast.makeText(this, getString(R.string.service_bind_fail), Toast.LENGTH_SHORT).show();
 				break;
-			case 2:
-				tv_send.setText("S:"+ ++send);
+			case MessageType.BaiscMessage.SCAN_RESULT_GET_SUCCESS:
+				et_code.setText((String) message.obj);
+				tv_receiver.setText("R:"+ et_code.getText().length());
 				break;
-			default:
-				break;
-			}
-			return false;
 		}
-	});
+	}
 
 	private void initEvent() {
 		btn_scan.setOnClickListener(this);
@@ -166,7 +106,6 @@ public class ScannerActivity extends BaseActivity implements OnClickListener {
 	
 	@Override
 	protected void onResume() {
-		initScanSet();
 		super.onResume();
 	}
 
@@ -186,14 +125,8 @@ public class ScannerActivity extends BaseActivity implements OnClickListener {
 		Intent intent = null;
 		switch (v.getId()) {
 		case R.id.btn_scan:
-			beginToReceiverData = false;
 			try {
-				if(DEVICE_MODEL==3503||DEVICE_MODEL==3504){
-					mIzkcService.scanGT();
-				}else{
-					mIzkcService.scan();
-				}
-
+				mIzkcService.scan();
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -223,104 +156,15 @@ public class ScannerActivity extends BaseActivity implements OnClickListener {
 			startActivity(intent);
 
 	}
-	
-	void initScanSet(){
-		if(mIzkcService!=null){
-			try {
-				mIzkcService.openScan(ClientConfig.getBoolean(ClientConfig.OPEN_SCAN));
-				mIzkcService.dataAppendEnter(ClientConfig.getBoolean(ClientConfig.DATA_APPEND_ENTER));
-//				mIzkcService.continueScan(ClientConfig.getBoolean(ClientConfig.CONTINUE_SCAN));
-//				mIzkcService.scanRepeatHint(ClientConfig.getBoolean(ClientConfig.SCAN_REPEAT));
-			} catch (RemoteException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-	
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		switch (keyCode) {
-		case 135:
-//			mHandler.sendEmptyMessage(2);
-			break;
-		default:
-			break;
-		}
-		return super.onKeyDown(keyCode, event);
-	}
-
-	//该BroadcastReceiver的意图在于接收扫描按键（受系统控制的产品不起作用），屏幕打开, 屏幕关闭的广播；
-    //屏幕打开需要打开扫描模块，唤醒扫描功能；
-    //屏幕关闭须要关闭扫描模块，开启省电模式；
-	int count = 1;
-	public class RemoteControlReceiver extends BroadcastReceiver {
-
-		private static final String TAG = "RemoteControlReceiver";
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String action = intent.getAction();
-			beginToReceiverData = false;
-			Log.i(TAG, "System message " + action);
-			if(action.equals("com.zkc.keycode")) {
-				if(count++>0){
-					count = 0;
-					int keyValue = intent.getIntExtra("keyvalue", 0);
-					Log.i(TAG, "KEY VALUE:"+keyValue);
-					if (keyValue == 136 || keyValue == 135 || keyValue == 131) {
-						Log.i(TAG, "Scan key down.........");
-						try {
-							if(mIzkcService!=null){
-								mIzkcService.scan();
-								mHandler.sendEmptyMessage(2);
-							}else{
-								mIzkcService.scanGT();
-								mHandler.sendEmptyMessage(2);
-							}
-
-						} catch (RemoteException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-			} else if (action.equals("android.intent.action.SCREEN_ON")) {
-				Log.i(TAG, "Power off,Close scan modules power.........");
-				if(mIzkcService!=null){
-					beginToReceiverData = true;
-					initScanSet();
-				}
-			} else if (action.equals("android.intent.action.SCREEN_OFF")) {
-				Log.i(TAG, "ACTION_SCREEN_OFF,Close scan modules power.........");
-				try {
-					if(mIzkcService!=null)
-						mIzkcService.openScan(false);
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} else if (action.equals("android.intent.action.ACTION_SHUTDOWN")) {
-				Log.i(TAG, "ACTION_SCREEN_ON,Open scan modules power.........");
-				try {
-					if(mIzkcService!=null)
-						mIzkcService.openScan(false);
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-	
-	@Override
-	protected void onPause() {
-		beginToReceiverData = true;
-		super.onPause();
-	}
 
 	@Override
 	protected void onDestroy() {
-		unregisterReceiver(screenStatusReceiver);
+		try {
+			mIzkcService.unregisterCallBack("Scanner", mCallback);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+//		unregisterReceiver(screenStatusReceiver);
 		super.onDestroy();
 	}
 }

@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Message;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.view.View;
@@ -17,6 +18,8 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageView;
 
+import com.kimersoft.pointofsaleterminal.common.MessageType;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class CustomerScreenActivity extends BaseActivity implements
-        OnClickListener {
+		OnClickListener {
 
 	private Button btn_dot, btn_rgb565, btn_rgb565_location, btn_updatelogo;
 	private CheckBox cb_auto;
@@ -39,6 +42,28 @@ public class CustomerScreenActivity extends BaseActivity implements
 		setContentView(R.layout.activity_cscreen);
 		initView();
 		initEvent();
+		enableWiget(false);
+	}
+
+	@Override
+	protected void handleStateMessage(Message message) {
+		super.handleStateMessage(message);
+		switch (message.what){
+			case MessageType.BaiscMessage.SEVICE_BIND_SUCCESS:
+				if(mIzkcService!=null){
+					//打开客显屏 open the Customer Screen
+					try {
+						mIzkcService.openBackLight(1);
+					} catch (RemoteException e) {
+						e.printStackTrace();
+					}
+				}
+				enableWiget(true);
+				break;
+			case MessageType.BaiscMessage.SEVICE_BIND_FAIL:
+
+				break;
+		}
 	}
 
 	private void initEvent() {
@@ -73,6 +98,14 @@ public class CustomerScreenActivity extends BaseActivity implements
 		cb_auto = (CheckBox) findViewById(R.id.cb_auto);
 		iv_diaplay = (ImageView) findViewById(R.id.iv_display);
 
+	}
+
+	private void enableWiget(boolean flag){
+		btn_dot.setEnabled(flag);
+		btn_rgb565.setEnabled(flag);
+		btn_rgb565_location.setEnabled(flag);
+		btn_updatelogo.setEnabled(flag);
+		cb_auto.setEnabled(false);
 	}
 
 	@Override
@@ -165,7 +198,7 @@ public class CustomerScreenActivity extends BaseActivity implements
 
 	private void showRGb565Location() {
 		Bitmap bmRGB565 = BitmapFactory.decodeResource(getResources(),
-				R.drawable.zkc);
+				R.drawable.hello);
 		try {
 			if (mIzkcService.showRGB565ImageCenter(bmRGB565)) {
 				iv_diaplay.setImageBitmap(bmRGB565);

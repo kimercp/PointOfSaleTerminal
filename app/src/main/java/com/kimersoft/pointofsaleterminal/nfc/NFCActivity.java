@@ -146,7 +146,7 @@ public class NFCActivity extends Activity {
 
 		@Override
 		public boolean onItemLongClick(AdapterView<?> parent, View view,
-                                       int position, long id) {
+				int position, long id) {
 			// TODO Auto-generated method stub
 			mynfc = list.get(position);
 			if (mynfc.type == 1) {
@@ -202,7 +202,8 @@ public class NFCActivity extends Activity {
 										processIntent(getIntent());
 									}
 								} catch (IOException e) {
-									Toast.makeText(NFCActivity.this, "Please put the tags on the equipment behind", Toast.LENGTH_SHORT).show();
+									Toast.makeText(NFCActivity.this, "Please put the tags on the equipment behind",
+											3000).show();
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								} finally {
@@ -230,7 +231,7 @@ public class NFCActivity extends Activity {
 	 * 
 	 * @param intent
 	 */
-	private void processIntent(Intent intent) {
+	private void processIntent(Intent intent) {	
 		boolean auth = false;
 		String cardStr="";
 		Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);

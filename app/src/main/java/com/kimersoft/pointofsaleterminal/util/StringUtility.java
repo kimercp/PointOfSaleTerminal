@@ -81,7 +81,7 @@ public class StringUtility
 		int l = strInput.length() / 2;  
         byte[] ret = new byte[l];  
         for (int i = 0; i < l; i++) {  
-            ret[i] = (byte) Integer
+            ret[i] = (byte) Integer  
                     .valueOf(strInput.substring(i * 2, i * 2 + 2), 16).byteValue();  
         }  
         return ret;  
@@ -100,17 +100,17 @@ public class StringUtility
 	 *  @return arrayStr 返回拆分后的数组�?
 	 * */
 	static public String[] spiltStrings(String str, String reg){
-		String[] arrayStr = str.split(reg);
+		String [] arrayStr = str.split(reg); 
 		return arrayStr;
 	}
 	
 	// 字符序列转换为16进制字符串  
-    static public String bytesToHexString(byte[] src) {
+    static public String bytesToHexString(byte[] src) {  
         return bytesToHexString(src, true);  
     }  
   
-    static public String bytesToHexString(byte[] src, boolean isPrefix) {
-        StringBuilder stringBuilder = new StringBuilder();
+    static public String bytesToHexString(byte[] src, boolean isPrefix) {  
+        StringBuilder stringBuilder = new StringBuilder();  
         if (isPrefix == true) {  
             stringBuilder.append("0x");  
         }  
@@ -119,11 +119,11 @@ public class StringUtility
         }  
         char[] buffer = new char[2];  
         for (int i = 0; i < src.length; i++) {  
-            buffer[0] = Character.toUpperCase(Character.forDigit(
+            buffer[0] = Character.toUpperCase(Character.forDigit(  
                     (src[i] >>> 4) & 0x0F, 16));  
-            buffer[1] = Character.toUpperCase(Character.forDigit(src[i] & 0x0F,
+            buffer[1] = Character.toUpperCase(Character.forDigit(src[i] & 0x0F,  
                     16));  
-            System.out.println(buffer);
+            System.out.println(buffer);  
             stringBuilder.append(buffer);
             stringBuilder.append("  ");
         }  

@@ -21,14 +21,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:tag="0"
+            android:tag="1"
             android:text="Card 1" />
 
         <RadioButton
             android:id="@+id/radio_cardTwo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:tag="1"
+            android:tag="2"
             android:text="Card 2" />
 
         <RadioButton
@@ -36,7 +36,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:tag="2"
-            android:text="Card 3" />
+            android:text="Card 3"
+            android:visibility="gone"/>
     </RadioGroup>
     <RadioGroup
         android:id="@+id/radioGroupPower"

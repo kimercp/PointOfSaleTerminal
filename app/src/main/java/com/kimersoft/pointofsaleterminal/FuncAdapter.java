@@ -17,7 +17,7 @@ import java.util.List;
  * Created by Administrator on 2017/3/25 10:26
  */
 
-public class FuncAdapter extends BaseAdapter {
+public class FuncAdapter extends BaseAdapter{
     private Context mContext;
     private List<HashMap<String, String>> data;
     private LayoutInflater mLayoutInflater;

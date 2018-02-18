@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.view.View;
@@ -13,7 +12,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.kimersoft.pointofsaleterminal.util.ExecutorFactory;
+import com.kimersoft.pointofsaleterminal.common.MessageType;
+import com.kimersoft.pointofsaleterminal.util.SystemUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,48 +29,33 @@ public class MainActivity extends BaseActivity {
 	private TextView tv_device_model;
 	FuncAdapter mFuncAdapter = null;
 	ScreenOnOffReceiver mReceiver = null;
+	private boolean testFlag = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		setContentView(R.layout.activity_main);
 		listView = (ListView) findViewById(R.id.listView1);
 		tv_device_model = (TextView) findViewById(R.id.tv_device_model);
-
 		product_name = getIntent().getStringExtra(PRODUCT_NAME);
 		tv_device_model.setText(R.string.without_get_device_model);
-
 //		mReceiver = new ScreenOnOffReceiver();
 //		IntentFilter screenStatusIF = new IntentFilter();
 //		screenStatusIF.addAction(Intent.ACTION_SCREEN_ON);
 //		screenStatusIF.addAction(Intent.ACTION_SCREEN_OFF);
 //		registerReceiver(mReceiver, screenStatusIF);
-
-		ExecutorFactory.executeThread(new Runnable() {
-			@Override
-			public void run() {
-				while(runFlag){
-					if(bindSuccessFlag){
-						mHandler.obtainMessage(0).sendToTarget();
-						runFlag = false;
-					}
-				}
-			}
-		});
 		mFuncAdapter = new FuncAdapter(MainActivity.this, data);
 		listView.setAdapter(mFuncAdapter);
-
-		// oblsuga roznych activity w i pass MODULE_FLAG
 		listView.setOnItemClickListener(new OnItemClickListener() {
+
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
+					int position, long id) {
 				Intent intent = null;
 				String idStr = data.get(position).get("id");
 				if("printer".equals(idStr)){
 					intent = new Intent(MainActivity.this ,
 							PrinterActivity.class);
 					intent.putExtra(BaseActivity.MODULE_FLAG, 0);
-
 				}else if("Scanner".equals(idStr)){
 					intent = new Intent(MainActivity.this,
 							ScannerActivity.class);
@@ -102,13 +87,14 @@ public class MainActivity extends BaseActivity {
 					intent = new Intent(MainActivity.this,NfcActivity.class);
 
 				}else if("serialport".equals(idStr)){
-					intent = new Intent(MainActivity.this,
-							SerialPortActivity.class);
-					intent.putExtra(BaseActivity.MODULE_FLAG, 7);
+//					intent = new Intent(MainActivity.this,
+//							SerialPortActivity.class);
+//					intent.putExtra(BaseActivity.MODULE_FLAG, 7);
+					SystemUtil.startActivityForName(MainActivity.this, "com.zkc.serialdebugtools.SerialPortActivity");
 				}else if("idcard".equals(idStr)){
 					intent = new Intent(MainActivity.this,
 							IDCardActivity.class);
-					intent.putExtra(BaseActivity.MODULE_FLAG, 6);
+					intent.putExtra(BaseActivity.MODULE_FLAG, 5);
 				}
 
 				if (intent != null) {
@@ -117,7 +103,6 @@ public class MainActivity extends BaseActivity {
 
 			}
 		});
-
 //		if(DEVICE_MODEL==3502){
 			BaseActivity.module_flag = 8;
 //		}
@@ -129,45 +114,28 @@ public class MainActivity extends BaseActivity {
 		super.onResume();
 	}
 
-	Handler mHandler = new Handler(new Handler.Callback() {
-		@Override
-		public boolean handleMessage(Message msg) {
-			switch (msg.what) {
-				case 0:
-					if(DEVICE_MODEL>0){
-//						showProgressDialog("waiting...");
-//						new Timer().schedule(new TimerTask() {
-//							@Override
-//							public void run() {
-//								dismissLoadDialog();
-//							}
-//						}, 5000);
-						tv_device_model.setText(getString(R.string.device_model) + DEVICE_MODEL);
-						initData(DEVICE_MODEL);
-						mFuncAdapter.notifyDataSetChanged();
-					}
-					break;
-				case 8:
-					module_flag = 8;
-					bindService();
-					break;
-				default:
-					break;
-			}
-			return false;
+	@Override
+	protected void handleStateMessage(Message message) {
+		super.handleStateMessage(message);
+		switch (message.what){
+			case MessageType.BaiscMessage.SEVICE_BIND_SUCCESS:
+				tv_device_model.setText(getString(R.string.device_model) + DEVICE_MODEL);
+				initData(DEVICE_MODEL);
+				mFuncAdapter.notifyDataSetChanged();
+				break;
+			case MessageType.BaiscMessage.SEVICE_BIND_FAIL:
+				break;
 		}
-	});
+	}
 
 	@Override
 	protected void onDestroy() {
 		try {
-			mIzkcService.setModuleFlag(9);
+			if(mIzkcService!=null)mIzkcService.setModuleFlag(9);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		unbindService();
-//		unregisterReceiver(mReceiver);
 		super.onDestroy();
 	}
 
@@ -218,6 +186,7 @@ public class MainActivity extends BaseActivity {
 				data.add(map3);
 				data.add(map4);
 				data.add(map5);
+				data.add(map8);
 				break;
 			case 3502:
 				data.add(map1);
@@ -227,11 +196,19 @@ public class MainActivity extends BaseActivity {
 				data.add(map5);
 				data.add(map6);
 				data.add(map8);
-				data.add(map9);
 //				data.add(map11);
 				break;
 			case 3504:
+				data.add(map1);
+				data.add(map2);
+				data.add(map3);
+				data.add(map4);
+				data.add(map5);
+				data.add(map8);
+				data.add(map11);
+				break;
 			case 3505:
+			case 3506:
 				data.add(map1);
 				data.add(map2);
 				data.add(map3);
@@ -255,8 +232,10 @@ public class MainActivity extends BaseActivity {
 				data.add(map6);
 				data.add(map7);
 				data.add(map8);
+				data.add(map11);
 				break;
 			case 900:
+			case 5501:
 				data.add(map1);
 				data.add(map3);
 				data.add(map4);
@@ -265,6 +244,7 @@ public class MainActivity extends BaseActivity {
 				data.add(map8);
 				break;
 		}
+		if(testFlag)data.add(map9);
 	}
 
 

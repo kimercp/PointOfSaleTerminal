@@ -182,30 +182,11 @@
                     android:button="@drawable/checkbox_selector"
                     android:focusable="false" />
             </LinearLayout>
-
-            <LinearLayout
+            <Button
+                android:id="@+id/btnRecoveryFactory"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="1dp"
-                android:background="#dde7f0"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:padding="10dp" >
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/recovery_factory_setting" />
-
-                <CheckBox
-                    android:id="@+id/checkbox_reset"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="8dp"
-                    android:button="@drawable/checkbox_selector"
-                    android:focusable="false" />
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:text="@string/recovery_factory_setting"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

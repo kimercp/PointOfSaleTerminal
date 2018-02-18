@@ -25,7 +25,9 @@ import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
 import android.view.SurfaceHolder;
+import android.widget.Toast;
 
+import com.kimersoft.pointofsaleterminal.R;
 import com.kimersoft.pointofsaleterminal.util.SystemUtil;
 
 import java.io.IOException;
@@ -122,18 +124,20 @@ public final class CameraManager {
     if (camera == null) {
       camera = Camera.open();
       if (camera == null) {
-        throw new IOException();
+//        throw new IOException();
+        Toast.makeText(context, context.getString(R.string.notLinkToCamera), Toast.LENGTH_SHORT).show();
+        return;
       }
       camera.setPreviewDisplay(holder);
 
       if (!initialized) {
         initialized = true;
         int direct = SystemUtil.getScreenOrientent(context);
-//        if(direct==0||direct == 2){
+        if(direct==0||direct == 2){
         	configManager.initFromCameraParametersH(camera);
-//        }else if(direct==1||direct == 3){
-//        	configManager.initFromCameraParametersV(camera);
-//        }
+        }else if(direct==1||direct == 3){
+        	configManager.initFromCameraParametersV(camera);
+        }
       }
       configManager.setDesiredCameraParameters(camera);
 

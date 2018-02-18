@@ -1,7 +1,6 @@
 package com.kimersoft.pointofsaleterminal.scan;
 
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
@@ -17,16 +16,16 @@ import android.widget.Toast;
 
 import com.kimersoft.pointofsaleterminal.BaseActivity;
 import com.kimersoft.pointofsaleterminal.R;
-import com.kimersoft.pointofsaleterminal.util.ExecutorFactory;
+import com.kimersoft.pointofsaleterminal.common.MessageType;
 
 import java.io.UnsupportedEncodingException;
 
-public class ScanSetActivity extends BaseActivity{
-	
+public class ScanSetActivity extends BaseActivity implements OnClickListener{
+
 	private CheckBox checkBox_hex;
 	private EditText editText_command;
-	private Button button_sendcommand;
-	
+	private Button button_sendcommand,btnRecoveryFactory;
+
 	private ScrollView scrollView_setting;
 	//初始化控件
 	private CheckBox checkbox_openScan,checkbox_keyBordInput,checkbox_addEnter,checkbox_openSound,checkbox_openVibration,checkbox_continueScan,checkbox_repeatScanTip,checkbox_reset;
@@ -39,167 +38,158 @@ public class ScanSetActivity extends BaseActivity{
 		setContentView(R.layout.vp_twopage);
 		initView();
 		setCheckBoxEnable(false);
-		
-		ExecutorFactory.executeThread(new Runnable() {
 
-			@Override
-			public void run() {
-				while (runFlag) {
-					if (bindSuccessFlag) {
-						mHandler.sendEmptyMessage(0);
-						runFlag = false;
-					}
-				}
-			}
-		});
-		
 	}
-	
+
 	private void setCheckBoxEnable(boolean enable) {
 		checkbox_openScan.setEnabled(enable);
-		
+
 	}
 
-	Handler mHandler = new Handler(new Handler.Callback() {
-
-		@Override
-		public boolean handleMessage(Message msg) {
-			switch (msg.what) {
-			case 0:
+	@Override
+	protected void handleStateMessage(Message message) {
+		super.handleStateMessage(message);
+		switch (message.what){
+			case MessageType.BaiscMessage.SEVICE_BIND_SUCCESS:
 				setCheckBoxEnable(true);
 				break;
-			default:
+			case MessageType.BaiscMessage.SEVICE_BIND_FAIL:
 				break;
-			}
-			return false;
 		}
-	});
+	}
 
 	private void initView() {
-		
+
 		scrollView_setting=(ScrollView)findViewById(R.id.scrollView_setting);
-		
+
 		checkBox_hex=(CheckBox)findViewById(R.id.checkBox_hex);
-		
+
 		editText_command=(EditText)findViewById(R.id.editText_command);
-		
+
 		button_sendcommand=(Button)findViewById(R.id.button_sendcommand);
-		button_sendcommand.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View v) {
-				try{
-					String str=editText_command.getText().toString();
-					if(checkBox_hex.isChecked()){
-						if(mIzkcService!=null){
-							mIzkcService.sendCommand(StringToByteArray(str));
-						}
-					}else{
-						try {
-							if(mIzkcService!=null){
-								mIzkcService.sendCommand(str.getBytes("US-ASCII"));
-							}
-						} catch (UnsupportedEncodingException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-					}catch (Exception e) {
-						Log.e("ScanSetActivity", e.getMessage());
-						Toast.makeText(ScanSetActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-					}
-				
-			}
-		});
-		
+		button_sendcommand.setOnClickListener(this);
+
 		checkbox_openScan=(CheckBox)findViewById(R.id.checkbox_openScan);
 		checkbox_openScan.setOnCheckedChangeListener(new checkBoxCheckedChangeListener());
 		checkbox_openScan.setChecked(ClientConfig.getBoolean(ClientConfig.OPEN_SCAN));
-		
+
 		checkbox_keyBordInput=(CheckBox)findViewById(R.id.checkbox_keyBordInput);
 		checkbox_keyBordInput.setOnCheckedChangeListener(new checkBoxCheckedChangeListener());
 		checkbox_keyBordInput.setChecked(ClientConfig.getBoolean(ClientConfig.OPEN_SCAN));
-		
+
 		checkbox_addEnter=(CheckBox)findViewById(R.id.checkbox_addEnter);
 		checkbox_addEnter.setOnCheckedChangeListener(new checkBoxCheckedChangeListener());
 		checkbox_addEnter.setChecked(ClientConfig.getBoolean(ClientConfig.DATA_APPEND_ENTER));
-		
+
 		checkbox_openSound=(CheckBox)findViewById(R.id.checkbox_openSound);
 		checkbox_openSound.setOnCheckedChangeListener(new checkBoxCheckedChangeListener());
 		checkbox_openSound.setChecked(ClientConfig.getBoolean(ClientConfig.APPEND_RINGTONE));
-		
+
 		checkbox_openVibration=(CheckBox)findViewById(R.id.checkbox_openVibration);
 		checkbox_openVibration.setOnCheckedChangeListener(new checkBoxCheckedChangeListener());
 		checkbox_openVibration.setChecked(ClientConfig.getBoolean(ClientConfig.APPEND_VIBRATE));
-		
+
 		checkbox_continueScan=(CheckBox)findViewById(R.id.checkbox_continueScan);
 		checkbox_continueScan.setOnCheckedChangeListener(new checkBoxCheckedChangeListener());
 		checkbox_continueScan.setChecked(ClientConfig.getBoolean(ClientConfig.CONTINUE_SCAN));
-		
+
 		checkbox_repeatScanTip=(CheckBox)findViewById(R.id.checkbox_repeatScanTip);
 		checkbox_repeatScanTip.setOnCheckedChangeListener(new checkBoxCheckedChangeListener());
 		checkbox_repeatScanTip.setChecked(ClientConfig.getBoolean(ClientConfig.SCAN_REPEAT));
-		
-		checkbox_reset=(CheckBox)findViewById(R.id.checkbox_reset);
-		checkbox_reset.setOnCheckedChangeListener(new checkBoxCheckedChangeListener());	
-		
-	}
-	
-	static public byte[] StringToByteArray(String strInput)
-	{
-		int l = strInput.length() / 2;  
-        byte[] ret = new byte[l];  
-        for (int i = 0; i < l; i++) {  
-            ret[i] = (byte) Integer
-                    .valueOf(strInput.substring(i * 2, i * 2 + 2), 16).byteValue();  
-        }  
-        return ret;  
+		btnRecoveryFactory = (Button) findViewById(R.id.btnRecoveryFactory);
+		btnRecoveryFactory.setOnClickListener(this);
 
 	}
-	
-	class checkBoxCheckedChangeListener implements OnCheckedChangeListener {
+
+	private void sendCommand() {
+		try{
+			String str=editText_command.getText().toString();
+			if(checkBox_hex.isChecked()){
+				if(mIzkcService!=null){
+					mIzkcService.sendCommand(StringToByteArray(str));
+				}
+			}else{
+				try {
+					if(mIzkcService!=null){
+						mIzkcService.sendCommand(str.getBytes("US-ASCII"));
+					}
+				} catch (UnsupportedEncodingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}catch (Exception e) {
+			Log.e("ScanSetActivity", e.getMessage());
+			Toast.makeText(ScanSetActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	static public byte[] StringToByteArray(String strInput)
+	{
+		int l = strInput.length() / 2;
+		byte[] ret = new byte[l];
+		for (int i = 0; i < l; i++) {
+			ret[i] = (byte) Integer
+					.valueOf(strInput.substring(i * 2, i * 2 + 2), 16).byteValue();
+		}
+		return ret;
+	}
+
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()){
+			case R.id.btnRecoveryFactory:
+				try {
+					mIzkcService.recoveryFactorySet(true);
+				} catch (RemoteException e) {
+					e.printStackTrace();
+				}
+				break;
+			case R.id.button_sendcommand:
+				sendCommand();
+				break;
+		}
+	}
+
+	class checkBoxCheckedChangeListener implements OnCheckedChangeListener{
 		@Override
 		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
 			try {
 				switch (buttonView.getId()) {
-				case R.id.checkbox_openScan:
-					if(isChecked){
-						scrollView_setting.setVisibility(View.VISIBLE);
-					}else{
-						scrollView_setting.setVisibility(View.GONE);
-					}
-					mIzkcService.openScan(isChecked);
-					ClientConfig.setValue(ClientConfig.OPEN_SCAN, isChecked);
-					break;
-				case R.id.checkbox_keyBordInput:
-					
-					break;
-				case R.id.checkbox_addEnter:
-					mIzkcService.dataAppendEnter(isChecked);
-					ClientConfig.setValue(ClientConfig.DATA_APPEND_ENTER, isChecked);
-					break;
-				case R.id.checkbox_openSound:
-					mIzkcService.appendRingTone(isChecked);
-					ClientConfig.setValue(ClientConfig.APPEND_RINGTONE, isChecked);
-					break;
-				case R.id.checkbox_openVibration:
-					ClientConfig.setValue(ClientConfig.APPEND_VIBRATE, isChecked);
-					break;
-				case R.id.checkbox_continueScan:
-					mIzkcService.continueScan(isChecked);
-					ClientConfig.setValue(ClientConfig.CONTINUE_SCAN, isChecked);
-					break;
-				case R.id.checkbox_repeatScanTip:
-					mIzkcService.scanRepeatHint(isChecked);
-					ClientConfig.setValue(ClientConfig.SCAN_REPEAT, isChecked);
-					break;
-				case R.id.checkbox_reset:
-					mIzkcService.recoveryFactorySet(isChecked);
-					ClientConfig.setValue(ClientConfig.RESET, isChecked);
-					break;
+					case R.id.checkbox_openScan:
+						if(isChecked){
+							scrollView_setting.setVisibility(View.VISIBLE);
+						}else{
+							scrollView_setting.setVisibility(View.GONE);
+						}
+						mIzkcService.openScan(isChecked);
+						ClientConfig.setValue(ClientConfig.OPEN_SCAN, isChecked);
+						break;
+					case R.id.checkbox_keyBordInput:
 
-				default:
-					break;
+						break;
+					case R.id.checkbox_addEnter:
+						mIzkcService.dataAppendEnter(isChecked);
+						ClientConfig.setValue(ClientConfig.DATA_APPEND_ENTER, isChecked);
+						break;
+					case R.id.checkbox_openSound:
+						mIzkcService.appendRingTone(isChecked);
+						ClientConfig.setValue(ClientConfig.APPEND_RINGTONE, isChecked);
+						break;
+					case R.id.checkbox_openVibration:
+						ClientConfig.setValue(ClientConfig.APPEND_VIBRATE, isChecked);
+						break;
+					case R.id.checkbox_continueScan:
+						mIzkcService.continueScan(isChecked);
+						ClientConfig.setValue(ClientConfig.CONTINUE_SCAN, isChecked);
+						break;
+					case R.id.checkbox_repeatScanTip:
+						mIzkcService.scanRepeatHint(isChecked);
+						ClientConfig.setValue(ClientConfig.SCAN_REPEAT, isChecked);
+						break;
+
+					default:
+						break;
 				}
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
@@ -207,5 +197,5 @@ public class ScanSetActivity extends BaseActivity{
 			}
 		}
 	}
-	
+
 }
