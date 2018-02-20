@@ -18,7 +18,7 @@
     <string name="mainActivityToggles">Toggles</string>
     <string name="mainActivityDiscovery">Discovery</string>
     <string name="mainActivityAnalytics">Analytics</string>
-    <string name="mainActivityCardLynq">Card Lynq</string>
+    <string name="mainActivityCardLynq">CARD LYNQ</string>
     <string name="mainActivityOrders">ORDERS</string>
 
     <!-- from zkc product -->
@@ -85,5 +85,7 @@
     <string name="notLinkToCamera">can not link to camera</string>
     <string name="printer_link_timeout">the printer link timeout, you can try it confirm whether install the right service apk or turn off the device and turn on again</string>
 
+    <!-- cardy lynq activity -->#
+    <string name="entercard">PLEASE ENTER CARD</string>
 
 </resources>

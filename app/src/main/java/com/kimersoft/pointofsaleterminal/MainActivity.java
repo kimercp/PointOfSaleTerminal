@@ -62,7 +62,9 @@ public class MainActivity extends BaseActivity {
 					intent.putExtra(BaseActivity.MODULE_FLAG, 4);
 				}else if("camerascanner".equals(idStr)){
 					intent = new Intent(MainActivity.this,CaptureActivity.class);
-				}else if("psam".equals(idStr)){
+				}
+
+				else if("psam".equals(idStr)){
 					if(DEVICE_MODEL==3502||DEVICE_MODEL == 900){
 						intent = new Intent(MainActivity.this, PSAMActivity.class);
 					}else{
@@ -74,7 +76,9 @@ public class MainActivity extends BaseActivity {
 					intent = new Intent(MainActivity.this, PSAMActivityV2.class);
 					intent.putExtra(BaseActivity.MODULE_FLAG, 1);
 
-				}else if("magneticcard".equals(idStr)){
+				}
+
+				else if("magneticcard".equals(idStr)){
 					intent = new Intent(MainActivity.this,
 							ManeticCardActivity.class);
 					intent.putExtra(BaseActivity.MODULE_FLAG, 2);

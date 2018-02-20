@@ -26,9 +26,23 @@ public class PSAMActivity extends BaseActivity implements OnClickListener, OnChe
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_psam);
+		setContentView(R.layout.activity_psam2);
 		initView();
 		initEvent();
+	}
+
+	private void initView() {
+		btn_init = (Button) findViewById(R.id.btn_init);
+		btn_random = (Button) findViewById(R.id.btn_random);
+		btn_send = (Button) findViewById(R.id.btn_send);
+		btn_power_on = (Button) findViewById(R.id.btn_power_on);
+		btn_power_off = (Button) findViewById(R.id.btn_power_off);
+
+		radioGroupCard = (RadioGroup) findViewById(R.id.radioGroupCard);
+		radioGroupPower = (RadioGroup) findViewById(R.id.radioGroupPower);
+
+		et_receiver = (EditText) findViewById(R.id.et_display);
+		et_cmd = (EditText) findViewById(R.id.et_cmd);
 	}
 
 	private void initEvent() {
@@ -39,20 +53,6 @@ public class PSAMActivity extends BaseActivity implements OnClickListener, OnChe
 		btn_power_off.setOnClickListener(this);
 		radioGroupCard.setOnCheckedChangeListener(this);
 		radioGroupPower.setOnCheckedChangeListener(this);
-	}
-
-	private void initView() {
-		btn_init = (Button) findViewById(R.id.btn_init);
-		btn_random = (Button) findViewById(R.id.btn_random);
-		btn_send = (Button) findViewById(R.id.btn_send);
-		btn_power_on = (Button) findViewById(R.id.btn_power_on);
-		btn_power_off = (Button) findViewById(R.id.btn_power_off);
-		
-		radioGroupCard = (RadioGroup) findViewById(R.id.radioGroupCard);
-		radioGroupPower = (RadioGroup) findViewById(R.id.radioGroupPower);
-		
-		et_receiver = (EditText) findViewById(R.id.et_display);
-		et_cmd = (EditText) findViewById(R.id.et_cmd);
 	}
 
 	@Override

@@ -73,6 +73,7 @@
         <activity android:name="com.kimersoft.pointofsaleterminal.scan.ScanInstructionActivity"/>
         <activity android:name="com.kimersoft.pointofsaleterminal.scan.ScanSetActivity"/>
         <activity android:name=".IDCardActivity"/>
+        <activity android:name=".CardLynqPSAM2" />
 
     </application>
 
