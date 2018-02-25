@@ -21,6 +21,12 @@
             android:layout_weight="1"
             android:text="Power ON" />
 
+        <Button
+            android:id="@+id/btn_power_off"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Power OFF" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -34,6 +40,12 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Reset" />
+
+        <Button
+            android:id="@+id/btn_random"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TEST" />
 
     </LinearLayout>
 
@@ -50,5 +62,11 @@
         android:layout_marginTop="20dp"
         android:ems="10"
         android:inputType="textMultiLine" />
+
+    <Button
+        android:id="@+id/btn_reader"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Reader card start" />
 
 </LinearLayout>

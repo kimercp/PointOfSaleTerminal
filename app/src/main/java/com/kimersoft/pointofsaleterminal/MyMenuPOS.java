@@ -40,7 +40,8 @@ public class MyMenuPOS extends AppCompatActivity implements View.OnClickListener
                 startActivity(intent);
                 break;
             case R.id.imgCardLynq:
-                intent = new Intent(this, CardLynqPSAM2.class);
+//                intent = new Intent(this, CardLynqPSAM2.class);
+                intent = new Intent(this, CardLynq.class);
                 startActivity(intent);
         }
     }

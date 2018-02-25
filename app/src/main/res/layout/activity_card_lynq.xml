@@ -53,7 +53,7 @@
             android:orientation="vertical">
 
             <Button
-                android:id="@+id/btn_sign_in"
+                android:id="@+id/btn_reader"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginTop="60dp"
@@ -68,11 +68,13 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorWhite" />
 
-            <TextView
-                android:id="@+id/txtDisplay"
+            <EditText
+                android:id="@+id/et_display"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="TextView" />
+                android:layout_marginTop="20dp"
+                android:ems="10"
+                android:inputType="textMultiLine" />
 
         </LinearLayout>
 

@@ -28,7 +28,7 @@ public class CardLynqPSAM2 extends BaseActivity implements View.OnClickListener 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_psam2);
+        setContentView(R.layout.cardlynqtest2);
         initView();
 
 
