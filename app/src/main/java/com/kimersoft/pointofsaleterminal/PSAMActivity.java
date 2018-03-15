@@ -26,7 +26,7 @@ public class PSAMActivity extends BaseActivity implements OnClickListener, OnChe
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_psam2);
+		setContentView(R.layout.activity_psam);
 		initView();
 		initEvent();
 	}
