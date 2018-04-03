@@ -6,6 +6,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+
+import com.com.kimersoft.ypos.TestActivity;
+
+import junit.framework.Test;
 
 public class MyMenuPOS extends AppCompatActivity implements View.OnClickListener {
 
@@ -18,13 +23,19 @@ public class MyMenuPOS extends AppCompatActivity implements View.OnClickListener
 
         // buttons
         ImageView imgLogo = (ImageView) findViewById(R.id.imgLogo);
-        ImageView imgMenu = (ImageView) findViewById(R.id.imgMenu);
-        ImageView imgCardLynq = (ImageView) findViewById(R.id.imgCardLynq);
+        LinearLayout linearLayoutMenu = (LinearLayout) findViewById(R.id.layoutMenu);
+        LinearLayout linearLayoutCardLynq = (LinearLayout) findViewById(R.id.layoutCardLynq);
+
+        LinearLayout linearLayoutEvents = (LinearLayout) findViewById(R.id.layoutEvents);
+        LinearLayout linearLayoutAnalytics = (LinearLayout) findViewById(R.id.layoutAnalytics);
 
         // set OnClickListener for each button
         imgLogo.setOnClickListener(this);
-        imgMenu.setOnClickListener(this);
-        imgCardLynq.setOnClickListener(this);
+        linearLayoutMenu.setOnClickListener(this);
+        linearLayoutCardLynq.setOnClickListener(this);
+
+        linearLayoutEvents.setOnClickListener(this);
+        linearLayoutAnalytics.setOnClickListener(this);
     }
 
     @Override
@@ -35,14 +46,23 @@ public class MyMenuPOS extends AppCompatActivity implements View.OnClickListener
                 intent = new Intent(this, MainActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.imgMenu:
+            case R.id.layoutMenu:
                 intent = new Intent(this, LynqMenu.class);
                 startActivity(intent);
                 break;
-            case R.id.imgCardLynq:
+            case R.id.layoutCardLynq:
 //                intent = new Intent(this, CardLynqPSAM2.class);
                 intent = new Intent(this, CardLynq.class);
                 startActivity(intent);
+                break;
+            case R.id.layoutEvents:
+                intent = new Intent(getBaseContext(), TestActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.layoutAnalytics:
+                intent = new Intent(this, TestActivity.class);
+                startActivity(intent);
+                break;
         }
     }
 

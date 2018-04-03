@@ -59,11 +59,11 @@
     <string name="scanning">Scan</string>
     <string name="open_scanning">Open scanner</string>
     <string name="add_enter">Add enter key</string>
-    <string name = "add_ringtone">Ringtone of scan success</string>
-    <string name = "add_vibarate">vibration of scan success</string>
+    <string name="add_ringtone">Ringtone of scan success</string>
+    <string name="add_vibarate">vibration of scan success</string>
     <string name="continue_scan">Continuous scanning</string>
-    <string name = "scan_repeat_hint">Hint of scan repeat</string>
-    <string name= "recovery_factory_setting">Restore factory settings</string>
+    <string name="scan_repeat_hint">Hint of scan repeat</string>
+    <string name="recovery_factory_setting">Restore factory settings</string>
     <string name="cmd">CMD</string>
     <string name="send">Send</string>
     <string name="weburl">file:///android_asset/html/redeme.html</string>
@@ -87,5 +87,14 @@
 
     <!-- cardy lynq activity -->#
     <string name="entercard">PLEASE ENTER CARD</string>
+
+    <!-- ypos strings -->
+    <string name="button2">Magnetic (MagFlag) card reader</string>
+    <string name="button3">ContactLess (RfFlag) card reader</string>
+    <string name="button4">Chip (IcFlag) card reader</string>
+    <string name="button5">SerialNumber</string>
+    <string name="button6">CUPDeviceSn</string>
+    <string name="button7">Version</string>
+    <string name="button8">All of Card Readers</string>
 
 </resources>

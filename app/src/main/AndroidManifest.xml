@@ -8,14 +8,40 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!-- 允许使用相机 -->
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
+
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <!-- NFC权限声明 -->
     <uses-permission android:name="android.permission.NFC" />
+
+
+
+    <uses-permission android:name="com.morefun.permission.CLOUDPOS_MSR" />
+    <!-- 读写非接触式卡片数据 -->
+    <uses-permission android:name="com.morefun.permission.CLOUDPOS_CONTACTLESS_CARD" />
+    <!-- 读写智能卡数据 -->
+    <uses-permission android:name="com.morefun.permission.CLOUDPOS_SMARTCARD" />
+    <!-- 使用热敏打印机 -->
+    <uses-permission android:name="com.morefun.permission.CLOUDPOS_PRINTER" />
+    <!-- 使用内部串口 -->
+    <uses-permission android:name="com.morefun.permission.CLOUDPOS_SERIAL" />
+    <!-- 获取PIN密码 -->
+    <uses-permission android:name="com.morefun.permission.CLOUDPOS_PIN_GET_PIN_BLOCK" />
+    <!-- 获取MAC计算结果 -->
+    <uses-permission android:name="com.morefun.permission.CLOUDPOS_PIN_MAC" />
+    <!-- 获取PIN加密结果 -->
+    <uses-permission android:name="com.morefun.permission.CLOUDPOS_PIN_ENCRYPT_DATA" />
+    <!-- 更新主密钥 -->
+    <uses-permission android:name="com.morefun.permission.CLOUDPOS_PIN_UPDATE_MASTER_KEY" />
+    <!-- 更新工作密钥 -->
+    <uses-permission android:name="com.morefun.permission.CLOUDPOS_PIN_UPDATE_USER_KEY" />
+    <!-- 获取随机数 -->
+    <uses-permission android:name="com.morefun.permission.CLOUDPOS_GET_RANDUM_NUMBER" />
+    <uses-permission android:name="com.morefun.permission.CLOUDPOS_SCANNER" />
 
 
 
@@ -37,44 +63,42 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".MyMenuPOS"
-        android:screenOrientation="portrait" />
-
-        <activity android:name=".LynqMenu" />
-
-        <activity android:name=".CardLynq"
-        android:screenOrientation="portrait" />
-
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MyMenuPOS"
             android:screenOrientation="portrait" />
-
+        <activity android:name=".LynqMenu" />
+        <activity
+            android:name=".CardLynq"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait" />
         <activity android:name=".PSAMActivity" />
         <activity android:name=".PSAMActivity2" />
-        <activity android:name="com.kimersoft.pointofsaleterminal.PSAMActivityV2"/>
-        <activity android:name="com.kimersoft.pointofsaleterminal.PrinterActivity" />
-        <activity android:name="com.kimersoft.pointofsaleterminal.ScannerActivity" />
-        <activity android:name="com.kimersoft.pointofsaleterminal.CustomerScreenActivity" />
-        <activity android:name="com.kimersoft.pointofsaleterminal.ManeticCardActivity" />
-        <activity android:name="com.kimersoft.pointofsaleterminal.CaptureActivity"
+        <activity android:name=".PSAMActivityV2" />
+        <activity android:name=".PrinterActivity" />
+        <activity android:name=".ScannerActivity" />
+        <activity android:name=".CustomerScreenActivity" />
+        <activity android:name=".ManeticCardActivity" />
+        <activity
+            android:name=".CaptureActivity"
             android:configChanges="orientation|keyboardHidden"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-            android:windowSoftInputMode="stateAlwaysHidden"/>
+            android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity android:name=".NfcActivity">
 
-        <activity android:name="com.kimersoft.pointofsaleterminal.NfcActivity" >
             <!-- TECH_DISCOVERED类型的nfc -->
             <intent-filter>
                 <action android:name="android.nfc.action.TECH_DISCOVERED" />
             </intent-filter>
         </activity>
-
-        <activity android:name="com.kimersoft.pointofsaleterminal.nfc.NFCActivity"/>
-        <activity android:name="com.kimersoft.pointofsaleterminal.nfc.NFCAcmdActivity"/>
-        <activity android:name="com.kimersoft.pointofsaleterminal.scan.ScanInstructionActivity"/>
-        <activity android:name="com.kimersoft.pointofsaleterminal.scan.ScanSetActivity"/>
-        <activity android:name=".IDCardActivity"/>
+        <activity android:name=".nfc.NFCActivity" />
+        <activity android:name=".nfc.NFCAcmdActivity" />
+        <activity android:name=".scan.ScanInstructionActivity" />
+        <activity android:name=".scan.ScanSetActivity" />
+        <activity android:name=".IDCardActivity" />
         <activity android:name=".CardLynqPSAM2" />
-
+        <activity android:name="com.com.kimersoft.ypos.TestActivity"></activity>
     </application>
 
 </manifest>

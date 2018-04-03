@@ -3,7 +3,9 @@ package com.kimersoft.pointofsaleterminal;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.support.multidex.MultiDex;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -41,6 +43,11 @@ public class SignInActivity extends AppCompatActivity {
     private VolleyRequestsHandler volleyRequestsHandler;
     private ObjectToJsonParser usersDetails;
 
+
+    private SharedPreferences preferences;
+
+    SharedPreferences.Editor editor ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,7 +55,7 @@ public class SignInActivity extends AppCompatActivity {
         findViewById(R.id.rl_sign_in).setBackground(ContextCompat.getDrawable(this, R.drawable.gradient_background_radial));
 
 // this is temporarty to avoid sing in
-        startActivity(new Intent(SignInActivity.this, MyMenuPOS.class));
+//        startActivity(new Intent(SignInActivity.this, MyMenuPOS.class));
 
         // full screen on device
         makeFullscreen();
@@ -65,6 +72,14 @@ public class SignInActivity extends AppCompatActivity {
         rlLoading = findViewById(R.id.rl_sign_in_loading);
         loading = findViewById(R.id.loading);
 
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String login = preferences.getString("login", "");
+        if(!login.equals(""))
+        {
+            etSignInEmail.setText(login);
+            etSignInPwd.setText(preferences.getString("password", ""));
+        }
+
         //Sign in action
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,7 +93,7 @@ public class SignInActivity extends AppCompatActivity {
 
                 // create handler
                 volleyRequestsHandler = new VolleyRequestsHandler(SignInActivity.this);
-                // create object with user's email and password
+                // create JSON object with user's email and password
                 usersDetails = new ObjectToJsonParser();
                 JSONObject userDetailsJSONObject = usersDetails.userSignInJson(email, password);
 
@@ -94,6 +109,9 @@ public class SignInActivity extends AppCompatActivity {
                                 * we save the email, password and the returned token to shareprefs then we call
                                 * user_info endpoint to retrieve wallet,email,name,lastname and type parameters
                                 */
+                                //User: test@rep.wales
+                                //Pass: repcardiff
+
                                 final String token = (String) response;
                                 User u = new User();
                                 u.setToken(token);
@@ -106,6 +124,11 @@ public class SignInActivity extends AppCompatActivity {
                                     public void onSuccess(Object respons) {
 
                                         lottieAnimations.StoppingSignInLoading(loading, rlLoading);
+                                        preferences = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+                                        editor = preferences.edit();
+                                        editor.putString("login", email);
+                                        editor.putString("password", password);
+                                        editor.apply();
                                         startActivity(new Intent(SignInActivity.this, MyMenuPOS.class));
                                     }
 
